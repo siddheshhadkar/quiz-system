@@ -1,31 +1,23 @@
 const db = require("./db.config");
 
 const dbfetchUserByEmail = async (email) => {
-  let errorMessage = null;
-  const [rows, fields] = await db
+  const [rows] = await db
     .promise()
     .execute("SELECT * FROM `users` WHERE `email`=? LIMIT 1", [email])
-    .catch((err) => {
-      errorMessage = err.sqlMessage;
+    .catch(() => {
+      throw { errorMessage: "Malformed query", statusCode: 400 };
     });
-
-  const obj = {};
-  if (errorMessage !== null) {
-    obj["errorMessage"] = errorMessage;
-    obj["statusCode"] = 400;
-    return obj;
-  }
   if (rows.length === 0) {
-    obj["errorMessage"] = `No user with email: ${email} exists`;
-    obj["statusCode"] = 404;
-    return obj;
+    throw {
+      errorMessage: `No user with email: ${email} exists`,
+      statusCode: 404,
+    };
   }
-  obj["data"] = rows[0];
-  obj["statusCode"] = 200;
-  return obj;
+  return { data: rows[0], statusCode: 200 };
 };
 
 const dbCreateUser = async (user) => {
+  user.pop();
   let errorMessage = null;
   const result = await db
     .promise()
@@ -35,17 +27,9 @@ const dbCreateUser = async (user) => {
     )
     .catch((err) => {
       errorMessage = err.sqlMessage;
+      throw { errorMessage: errorMessage, statusCode: 400 };
     });
-
-  const obj = {};
-  if (errorMessage !== null) {
-    obj["errorMessage"] = errorMessage;
-    obj["statusCode"] = 400;
-    return obj;
-  }
-  obj["data"] = result[0].insertId;
-  obj["statusCode"] = 200;
-  return obj;
+  return { data: result[0].insertId, statusCode: 200 };
 };
 
 const dbUpdateUser = async (user) => {};
