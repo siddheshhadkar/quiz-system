@@ -8,10 +8,21 @@ const {
 const {
   createCategoryFieldChecks,
   validateFields,
+  validateToken,
+  checkPostPermission,
 } = require("../../middlewares/category.middleware");
 
 router.get("/", getCategory);
-router.post("/", createCategoryFieldChecks, validateFields, postCategory);
+
+router.post(
+  "/",
+  createCategoryFieldChecks,
+  validateFields,
+  validateToken,
+  checkPostPermission,
+  postCategory
+);
+
 router.put("/", putCategory);
 router.delete("/", deleteCategory);
 

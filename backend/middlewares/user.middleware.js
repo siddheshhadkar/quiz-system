@@ -12,8 +12,10 @@ const createUserFieldChecks = [
     min: 8,
     max: 72,
   }),
-  body("role_id").isInt({ min: 2, max: 3 }),
-  body("category_id").notEmpty(),
+  body("role_id").isInt({ min: 1, max: 3 }),
+  body("category_id"),
+  // body("role_id").isInt({ min: 2, max: 3 }),
+  // body("category_id").notEmpty(),
 ];
 
 const getUserFieldChecks = [

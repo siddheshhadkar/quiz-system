@@ -1,9 +1,9 @@
-const { dbfetchUserByEmail, dbCreateUser } = require("../db/user.db");
+const { dbFetchUserByEmail, dbCreateUser } = require("../db/user.db");
 const { getPasswordHash } = require("../helpers");
 
 const fetchUser = async (email) => {
   try {
-    const result = await dbfetchUserByEmail(email);
+    const result = await dbFetchUserByEmail(email);
     return result;
   } catch (e) {
     throw e;
