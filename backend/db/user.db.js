@@ -17,8 +17,6 @@ const dbfetchUserByEmail = async (email) => {
 };
 
 const dbCreateUser = async (user) => {
-  user.pop();
-  let errorMessage = null;
   const result = await db
     .promise()
     .execute(
@@ -26,8 +24,7 @@ const dbCreateUser = async (user) => {
       user
     )
     .catch((err) => {
-      errorMessage = err.sqlMessage;
-      throw { errorMessage: errorMessage, statusCode: 400 };
+      throw { errorMessage: err.sqlMessage, statusCode: 400 };
     });
   return { data: result[0].insertId, statusCode: 200 };
 };
