@@ -1,29 +1,49 @@
 const router = require("express").Router();
 const {
-  getCategory,
+  getAllCategories,
   postCategory,
   putCategory,
   deleteCategory,
 } = require("../../controllers/category.controller");
 const {
   createCategoryFieldChecks,
+  editCategoryFieldChecks,
+  deleteCategoryFieldChecks,
   validateFields,
   validateToken,
-  checkPostPermission,
+  checkCreatePermission,
+  checkViewPermission,
+  checkEditPermission,
+  checkDeletePermission,
 } = require("../../middlewares/category.middleware");
 
-router.get("/", getCategory);
+router.get("/all", validateToken, checkViewPermission, getAllCategories);
 
 router.post(
   "/",
   createCategoryFieldChecks,
   validateFields,
   validateToken,
-  checkPostPermission,
+  checkCreatePermission,
   postCategory
 );
 
-router.put("/", putCategory);
-router.delete("/", deleteCategory);
+router.put(
+  "/",
+  editCategoryFieldChecks,
+  validateFields,
+  validateToken,
+  checkEditPermission,
+  putCategory
+);
+
+router.delete(
+  "/",
+  deleteCategoryFieldChecks,
+  validateFields,
+  validateToken,
+  checkDeletePermission,
+  deleteCategory
+);
 
 module.exports = router;

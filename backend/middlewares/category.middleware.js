@@ -9,6 +9,16 @@ const createCategoryFieldChecks = [
   }),
 ];
 
+const editCategoryFieldChecks = [
+  body("id", "Invalid id").isInt({ min: 1 }),
+  body("name", "Name should have atleast three characters").trim().isLength({
+    min: 3,
+    max: 30,
+  }),
+];
+
+const deleteCategoryFieldChecks = [body("id", "Invalid id").isInt({ min: 1 })];
+
 const validateFields = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -35,7 +45,7 @@ const validateToken = (req, res, next) => {
   });
 };
 
-const checkPostPermission = async (req, res, next) => {
+const checkCreatePermission = async (req, res, next) => {
   try {
     const permissions = await fetchPermissions(req.body.email);
     if (permissions.includes("CREATE_CATEGORY")) {
@@ -53,9 +63,68 @@ const checkPostPermission = async (req, res, next) => {
   }
 };
 
+const checkViewPermission = async (req, res, next) => {
+  try {
+    const permissions = await fetchPermissions(req.body.email);
+    if (permissions.includes("VIEW_CATEGORIES")) {
+      return next();
+    } else {
+      return res.status(401).json({
+        errorMessage: "User not authorized to make this request",
+        success: false,
+      });
+    }
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+};
+
+const checkEditPermission = async (req, res, next) => {
+  try {
+    const permissions = await fetchPermissions(req.body.email);
+    if (permissions.includes("EDIT_CATEGORY")) {
+      return next();
+    } else {
+      return res.status(401).json({
+        errorMessage: "User not authorized to make this request",
+        success: false,
+      });
+    }
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+};
+
+const checkDeletePermission = async (req, res, next) => {
+  try {
+    const permissions = await fetchPermissions(req.body.email);
+    if (permissions.includes("DELETE_CATEGORY")) {
+      return next();
+    } else {
+      return res.status(401).json({
+        errorMessage: "User not authorized to make this request",
+        success: false,
+      });
+    }
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+};
+
 module.exports = {
   createCategoryFieldChecks,
+  editCategoryFieldChecks,
+  deleteCategoryFieldChecks,
   validateFields,
   validateToken,
-  checkPostPermission,
+  checkCreatePermission,
+  checkViewPermission,
+  checkEditPermission,
+  checkDeletePermission,
 };

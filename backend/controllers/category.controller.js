@@ -1,13 +1,27 @@
 const jwt = require("jsonwebtoken");
-const { createCategory } = require("../services/category.services");
+const {
+  createCategory,
+  fetchAllCategories,
+  editCategory,
+  removeCategory,
+} = require("../services/category.services");
 
-const getCategory = async (req, res) => {};
+const getAllCategories = async (req, res) => {
+  let result;
+  try {
+    result = await fetchAllCategories();
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+  return res.status(200).json({ data: result.data, success: true });
+};
 
 const postCategory = async (req, res) => {
   const name = req.body.name;
-  let result;
   try {
-    result = await createCategory(name);
+    await createCategory(name);
   } catch (e) {
     return res
       .status(e.statusCode)
@@ -16,11 +30,32 @@ const postCategory = async (req, res) => {
   return res.status(200).json({ success: true });
 };
 
-const putCategory = async (req, res) => {};
-const deleteCategory = async (req, res) => {};
+const putCategory = async (req, res) => {
+  const id = req.body.id;
+  const name = req.body.name;
+  try {
+    await editCategory(id, name);
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+  return res.status(200).json({ success: true });
+};
+const deleteCategory = async (req, res) => {
+  const id = req.body.id;
+  try {
+    await removeCategory(id);
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+  return res.status(200).json({ success: true });
+};
 
 module.exports = {
-  getCategory,
+  getAllCategories,
   postCategory,
   putCategory,
   deleteCategory,
