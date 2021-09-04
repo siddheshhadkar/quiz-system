@@ -1,10 +1,22 @@
-const { dbFetchUserByEmail, dbCreateUser } = require("../db/user.db");
+const {
+  dbFetchUserByEmail,
+  dbCreateUser,
+  dbRemoveUser,
+  dbFetchUserWithPassword,
+} = require("../db/user.db");
 const { getPasswordHash } = require("../helpers");
 
 const fetchUser = async (email) => {
   try {
-    const result = await dbFetchUserByEmail(email);
-    return result;
+    return await dbFetchUserByEmail(email);
+  } catch (e) {
+    throw e;
+  }
+};
+
+const fetchUserWithPassword = async (email) => {
+  try {
+    return await dbFetchUserWithPassword(email);
   } catch (e) {
     throw e;
   }
@@ -13,8 +25,7 @@ const fetchUser = async (email) => {
 const createUser = async (user) => {
   user.password = await getPasswordHash(user.password);
   try {
-    let result = await dbCreateUser(Object.values(user));
-    return result;
+    return await dbCreateUser(Object.values(user));
   } catch (e) {
     throw e;
   }
@@ -22,10 +33,17 @@ const createUser = async (user) => {
 
 const updateUser = () => {};
 
-const removeUser = () => {};
+const removeUser = async (id) => {
+  try {
+    return await dbRemoveUser(id);
+  } catch (e) {
+    throw e;
+  }
+};
 
 module.exports = {
   fetchUser,
+  fetchUserWithPassword,
   createUser,
   updateUser,
   removeUser,

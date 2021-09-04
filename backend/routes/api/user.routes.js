@@ -12,11 +12,12 @@ const {
   loginFieldChecks,
   validateFields,
 } = require("../../middlewares/user.middleware");
+const { validateToken } = require("../../helpers");
 
 router.get("/login", loginFieldChecks, validateFields, loginUser);
-router.get("/", getUserFieldChecks, validateFields, getUser);
+router.get("/", validateToken, getUser);
 router.post("/", createUserFieldChecks, validateFields, postUser);
-router.put("/", putUser);
-router.delete("/", deleteUser);
+router.put("/", createUserFieldChecks, validateFields, validateToken, putUser);
+router.delete("/", validateToken, deleteUser);
 
 module.exports = router;

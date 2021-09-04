@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 const {
   fetchUser,
+  fetchUserWithPassword,
   createUser,
   removeUser,
-  updateUser,
 } = require("../services/user.services");
 const { checkPassword } = require("../helpers");
 
@@ -12,92 +12,76 @@ const loginUser = async (req, res) => {
   const password = req.body.password;
   let result;
   try {
-    result = await fetchUser(email);
+    result = await fetchUserWithPassword(email);
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
   const user = result.data;
-
-  if (result.statusCode === 200) {
-    const passwordHash = result.data.password;
-    if (await checkPassword(password, passwordHash)) {
-      const payload = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      };
-      jwt.sign(
-        payload,
-        process.env.JWT_SECRET,
-        { expiresIn: 300 },
-        (err, token) => {
-          if (!err) {
-            return res.status(200).json({ data: token, success: true });
-          }
+  const passwordHash = result.data.password;
+  if (await checkPassword(password, passwordHash)) {
+    const payload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: 300 },
+      (err, token) => {
+        if (!err) {
+          return res.status(200).json({ data: token, success: true });
         }
-      );
-    } else {
-      return res
-        .status(401)
-        .json({ errorMessage: "Wrong password", success: false });
-    }
+      }
+    );
   } else {
     return res
-      .status(result.statusCode)
-      .json({ errorMessage: result.errorMessage, success: false });
+      .status(401)
+      .json({ errorMessage: "Wrong password", success: false });
   }
 };
 
 const getUser = async (req, res) => {
-  const authToken = req.headers.authorization;
-  if (!authToken) {
-    return res.status(401).json({ error: "Token not found, request denied" });
-  }
-  const [, token] = authToken.split(" ");
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ error: "Invalid token, request denied" });
-    } else {
-      const email = decoded.email;
-      const result = await fetchUser(email);
-      if (result.statusCode === 200) {
-        res
-          .status(result.statusCode)
-          .json({ data: result.data, success: true });
-      } else {
-        res
-          .status(result.statusCode)
-          .json({ errorMessage: result.errorMessage, success: false });
-      }
-    }
-  });
-};
-
-const postUser = async (req, res) => {
-  const user = req.body;
-  let result;
   try {
-    result = await createUser(user);
+    const result = await fetchUser(req.user.email);
+    return res
+      .status(result.statusCode)
+      .json({ data: result.data, success: true });
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
-  if (result.statusCode === 200) {
+};
+
+const postUser = async (req, res) => {
+  const user = req.body;
+  try {
+    const result = await createUser(user);
     return res
       .status(result.statusCode)
       .json({ data: result.data, success: true });
-  } else {
+  } catch (e) {
     return res
-      .status(result.statusCode)
-      .json({ errorMessage: result.errorMessage, success: false });
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
   }
 };
 
 const putUser = async (req, res) => {};
-const deleteUser = async (req, res) => {};
+
+const deleteUser = async (req, res) => {
+  try {
+    const result = await removeUser(req.user.id);
+    return res.status(result.statusCode).json({ success: true });
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+};
 
 module.exports = {
   loginUser,

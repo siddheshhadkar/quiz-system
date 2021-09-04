@@ -11,12 +11,12 @@ const {
   editCategoryFieldChecks,
   categoryIdFieldCheck,
   validateFields,
-  validateToken,
   checkCreatePermission,
   checkViewPermission,
   checkEditPermission,
   checkDeletePermission,
 } = require("../../middlewares/category.middleware");
+const { validateToken } = require("../../helpers");
 
 router.get("/all", validateToken, checkViewPermission, getAllCategories);
 

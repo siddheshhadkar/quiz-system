@@ -1,5 +1,4 @@
 const { body, validationResult, check } = require("express-validator");
-const jwt = require("jsonwebtoken");
 const { fetchPermissions } = require("../helpers");
 
 const createCategoryFieldChecks = [
@@ -30,24 +29,9 @@ const validateFields = (req, res, next) => {
   next();
 };
 
-const validateToken = (req, res, next) => {
-  const authToken = req.headers.authorization;
-  if (!authToken) {
-    return res.status(401).json({ error: "Token not found, request denied" });
-  }
-  const [, token] = authToken.split(" ");
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (!err) {
-      req.body.email = decoded.email;
-      return next();
-    }
-    return res.status(401).json({ error: "Invalid token, request denied" });
-  });
-};
-
 const checkCreatePermission = async (req, res, next) => {
   try {
-    const permissions = await fetchPermissions(req.body.email);
+    const permissions = await fetchPermissions(req.user.id);
     if (permissions.includes("CREATE_CATEGORY")) {
       return next();
     } else {
@@ -65,7 +49,7 @@ const checkCreatePermission = async (req, res, next) => {
 
 const checkViewPermission = async (req, res, next) => {
   try {
-    const permissions = await fetchPermissions(req.body.email);
+    const permissions = await fetchPermissions(req.user.id);
     if (permissions.includes("VIEW_CATEGORIES")) {
       return next();
     } else {
@@ -83,7 +67,7 @@ const checkViewPermission = async (req, res, next) => {
 
 const checkEditPermission = async (req, res, next) => {
   try {
-    const permissions = await fetchPermissions(req.body.email);
+    const permissions = await fetchPermissions(req.user.id);
     if (permissions.includes("EDIT_CATEGORY")) {
       return next();
     } else {
@@ -101,7 +85,7 @@ const checkEditPermission = async (req, res, next) => {
 
 const checkDeletePermission = async (req, res, next) => {
   try {
-    const permissions = await fetchPermissions(req.body.email);
+    const permissions = await fetchPermissions(req.user.id);
     if (permissions.includes("DELETE_CATEGORY")) {
       return next();
     } else {
@@ -122,7 +106,6 @@ module.exports = {
   editCategoryFieldChecks,
   categoryIdFieldCheck,
   validateFields,
-  validateToken,
   checkCreatePermission,
   checkViewPermission,
   checkEditPermission,

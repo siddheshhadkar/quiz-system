@@ -8,27 +8,26 @@ const {
 } = require("../services/category.services");
 
 const getAllCategories = async (req, res) => {
-  let result;
   try {
-    result = await fetchAllCategories();
+    const result = await fetchAllCategories();
+    return res.status(200).json({ data: result.data, success: true });
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
-  return res.status(200).json({ data: result.data, success: true });
 };
 
 const postCategory = async (req, res) => {
   const name = req.body.name;
   try {
     await createCategory(name);
+    return res.status(200).json({ success: true });
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
-  return res.status(200).json({ success: true });
 };
 
 const putCategory = async (req, res) => {
@@ -36,36 +35,35 @@ const putCategory = async (req, res) => {
   const name = req.body.name;
   try {
     await editCategory(id, name);
+    return res.status(200).json({ success: true });
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
-  return res.status(200).json({ success: true });
 };
 
 const deleteCategory = async (req, res) => {
   const id = req.body.id;
   try {
     await removeCategory(id);
+    return res.status(200).json({ success: true });
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
-  return res.status(200).json({ success: true });
 };
 
 const getCategoryMembers = async (req, res) => {
-  let result;
   try {
-    result = await fetchCategoryMembers(req.params.id);
+    const result = await fetchCategoryMembers(req.params.id);
+    return res.status(200).json({ data: result.data, success: true });
   } catch (e) {
     return res
       .status(e.statusCode)
       .json({ errorMessage: e.errorMessage, success: false });
   }
-  return res.status(200).json({ data: result.data, success: true });
 };
 
 module.exports = {
