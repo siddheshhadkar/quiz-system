@@ -4,11 +4,12 @@ const {
   postCategory,
   putCategory,
   deleteCategory,
+  getCategoryMembers,
 } = require("../../controllers/category.controller");
 const {
   createCategoryFieldChecks,
   editCategoryFieldChecks,
-  deleteCategoryFieldChecks,
+  categoryIdFieldCheck,
   validateFields,
   validateToken,
   checkCreatePermission,
@@ -39,11 +40,20 @@ router.put(
 
 router.delete(
   "/",
-  deleteCategoryFieldChecks,
+  categoryIdFieldCheck,
   validateFields,
   validateToken,
   checkDeletePermission,
   deleteCategory
+);
+
+router.get(
+  "/:id",
+  categoryIdFieldCheck,
+  validateFields,
+  validateToken,
+  checkViewPermission,
+  getCategoryMembers
 );
 
 module.exports = router;

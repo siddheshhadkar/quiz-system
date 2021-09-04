@@ -4,6 +4,7 @@ const {
   fetchAllCategories,
   editCategory,
   removeCategory,
+  fetchCategoryMembers,
 } = require("../services/category.services");
 
 const getAllCategories = async (req, res) => {
@@ -42,6 +43,7 @@ const putCategory = async (req, res) => {
   }
   return res.status(200).json({ success: true });
 };
+
 const deleteCategory = async (req, res) => {
   const id = req.body.id;
   try {
@@ -54,9 +56,22 @@ const deleteCategory = async (req, res) => {
   return res.status(200).json({ success: true });
 };
 
+const getCategoryMembers = async (req, res) => {
+  let result;
+  try {
+    result = await fetchCategoryMembers(req.params.id);
+  } catch (e) {
+    return res
+      .status(e.statusCode)
+      .json({ errorMessage: e.errorMessage, success: false });
+  }
+  return res.status(200).json({ data: result.data, success: true });
+};
+
 module.exports = {
   getAllCategories,
   postCategory,
   putCategory,
   deleteCategory,
+  getCategoryMembers,
 };

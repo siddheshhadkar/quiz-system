@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, check } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const { fetchPermissions } = require("../helpers");
 
@@ -17,7 +17,7 @@ const editCategoryFieldChecks = [
   }),
 ];
 
-const deleteCategoryFieldChecks = [body("id", "Invalid id").isInt({ min: 1 })];
+const categoryIdFieldCheck = [check("id", "Invalid id").isInt({ min: 1 })];
 
 const validateFields = (req, res, next) => {
   const errors = validationResult(req);
@@ -36,7 +36,7 @@ const validateToken = (req, res, next) => {
     return res.status(401).json({ error: "Token not found, request denied" });
   }
   const [, token] = authToken.split(" ");
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (!err) {
       req.body.email = decoded.email;
       return next();
@@ -120,7 +120,7 @@ const checkDeletePermission = async (req, res, next) => {
 module.exports = {
   createCategoryFieldChecks,
   editCategoryFieldChecks,
-  deleteCategoryFieldChecks,
+  categoryIdFieldCheck,
   validateFields,
   validateToken,
   checkCreatePermission,

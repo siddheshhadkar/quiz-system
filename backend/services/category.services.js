@@ -3,6 +3,7 @@ const {
   dbFetchAllCategories,
   dbEditCategory,
   dbDeleteCategory,
+  dbFetchCategoryMembers,
 } = require("../db/category.db");
 
 const createCategory = async (name) => {
@@ -37,9 +38,18 @@ const removeCategory = async (name) => {
   }
 };
 
+const fetchCategoryMembers = async (id) => {
+  try {
+    return await dbFetchCategoryMembers(id);
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   createCategory,
   fetchAllCategories,
   editCategory,
   removeCategory,
+  fetchCategoryMembers,
 };
