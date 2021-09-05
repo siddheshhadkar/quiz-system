@@ -1,20 +1,25 @@
-const { body, validationResult, check } = require("express-validator");
+const { body, validationResult } = require("express-validator");
 const { fetchPermissions } = require("../helpers");
 
-const createCategoryFieldChecks = [
-  body("name", "Name should have atleast three characters")
-    .trim()
-    .isLength({ min: 3, max: 30 }),
+const idFieldChecks = [body("id", "Invalid id").isInt({ min: 1 })];
+
+const categoryIdFieldChecks = [
+  body("category_id", "Invalid id").isInt({ min: 1 }),
 ];
 
-const editCategoryFieldChecks = [
-  body("id", "Invalid id").isInt({ min: 1 }),
-  body("name", "Name should have atleast three characters")
+const quizBodyFieldsCheck = [
+  body("title", "Title should have atleast three characters")
     .trim()
-    .isLength({ min: 3, max: 30 }),
+    .isLength({ min: 3, max: 50 }),
+  body("description", "Description should have atleast three characters")
+    .trim()
+    .isLength({ min: 3, max: 200 }),
+  body("total_marks").isInt({ min: 0 }),
+  body("category_id").isInt({ min: 0 }),
+  body("start_time").trim().isISO8601(),
+  body("end_time").trim().isISO8601(),
+  body("time_limit").isInt({ min: 0 }),
 ];
-
-const categoryIdFieldCheck = [check("id", "Invalid id").isInt({ min: 1 })];
 
 const validateFields = (req, res, next) => {
   const errors = validationResult(req);
@@ -30,25 +35,7 @@ const validateFields = (req, res, next) => {
 const checkCreatePermission = async (req, res, next) => {
   try {
     const permissions = await fetchPermissions(req.user.id);
-    if (permissions.includes("CREATE_CATEGORY")) {
-      return next();
-    } else {
-      return res.status(401).json({
-        errorMessage: "User not authorized to make this request",
-        success: false,
-      });
-    }
-  } catch (e) {
-    return res
-      .status(e.statusCode)
-      .json({ errorMessage: e.errorMessage, success: false });
-  }
-};
-
-const checkViewPermission = async (req, res, next) => {
-  try {
-    const permissions = await fetchPermissions(req.user.id);
-    if (permissions.includes("VIEW_CATEGORIES")) {
+    if (permissions.includes("CREATE_QUIZ")) {
       return next();
     } else {
       return res.status(401).json({
@@ -66,7 +53,7 @@ const checkViewPermission = async (req, res, next) => {
 const checkEditPermission = async (req, res, next) => {
   try {
     const permissions = await fetchPermissions(req.user.id);
-    if (permissions.includes("EDIT_CATEGORY")) {
+    if (permissions.includes("EDIT_QUIZ")) {
       return next();
     } else {
       return res.status(401).json({
@@ -84,7 +71,7 @@ const checkEditPermission = async (req, res, next) => {
 const checkDeletePermission = async (req, res, next) => {
   try {
     const permissions = await fetchPermissions(req.user.id);
-    if (permissions.includes("DELETE_CATEGORY")) {
+    if (permissions.includes("DELETE_QUIZ")) {
       return next();
     } else {
       return res.status(401).json({
@@ -100,12 +87,11 @@ const checkDeletePermission = async (req, res, next) => {
 };
 
 module.exports = {
-  createCategoryFieldChecks,
-  editCategoryFieldChecks,
-  categoryIdFieldCheck,
+  idFieldChecks,
+  categoryIdFieldChecks,
+  quizBodyFieldsCheck,
   validateFields,
   checkCreatePermission,
-  checkViewPermission,
   checkEditPermission,
   checkDeletePermission,
 };

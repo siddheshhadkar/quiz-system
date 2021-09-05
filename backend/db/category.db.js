@@ -1,4 +1,3 @@
-const e = require("express");
 const db = require("./db.config");
 
 const dbCheckIfCategoryExists = async (name) => {
